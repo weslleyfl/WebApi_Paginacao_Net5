@@ -27,6 +27,8 @@ namespace Paginacao.Controllers
 
 
         [HttpGet("load")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> LoadAsync()
         {
 
@@ -53,17 +55,17 @@ namespace Paginacao.Controllers
             return Ok();
         }
 
-        // Com paginaçao
-        // GET: api/Todos
-        //[HttpGet("{skip}/{take}")]
-        //public async Task<IActionResult> GetAsync(int skip = 1, int take = 25)
+        /// <summary>
+        /// Com paginação um pouco mais completa
+        /// GET: api/Todos
+        /// </summary>
+        /// <param name="filter">PaginationFilter object</param>
         [HttpGet()]
+        [ProducesDefaultResponseType]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAsync([FromQuery] PaginationFilter filter)
         {
-            //if (filter.PageSize > 100)
-            //{
-            //    return BadRequest(new { Error = "Valor maximo para retorno da api e 100 registros" });
-            //}
 
             var validarFiltro = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var todos = await _context
@@ -73,15 +75,12 @@ namespace Paginacao.Controllers
                 .Take(filter.PageSize)
                 .ToListAsync();
 
-
             return Ok(new PagedResponse<List<Todo>>(todos, filter.PageNumber, filter.PageSize));
 
         }
 
-
-        // GET: api/lista-todos
         // [HttpGet("lista-todos/{skip:int}/{take:int}")] // vai aparecer na rota tipo [FromRoute] lista-todos/1/10
-        [HttpGet("lista-todos")] // [FromQuery] - fica assim: lista-todos?skip=1&take=25" 
+        [HttpGet("list-todos")] // [FromQuery] - fica assim: list-todos?skip=1&take=25" 
         public async Task<ActionResult<IEnumerable<Todo>>> GetTodos([FromQuery] int skip = 1, [FromQuery] int take = 25)
         {
             if (take > 100)
@@ -98,14 +97,13 @@ namespace Paginacao.Controllers
                .Take(take)
                .ToListAsync();
 
-            //return Ok(new Response<List<Todo>>(todos));
+            //return Ok(new Response<List<Todo>>(todos)); // retorno simples
             return Ok(new PagedResponse<List<Todo>>(todos, skip, take)
             {
                 TotalRecords = total
             });
         }
 
-        // GET: api/Todos/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Todo>> GetTodo(int id)
         {
@@ -119,8 +117,6 @@ namespace Paginacao.Controllers
             return todo;
         }
 
-        // PUT: api/Todos/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTodo(int id, Todo todo)
         {
@@ -150,8 +146,6 @@ namespace Paginacao.Controllers
             return NoContent();
         }
 
-        // POST: api/Todo
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Todo>> PostTodo(Todo todo)
         {
@@ -161,7 +155,6 @@ namespace Paginacao.Controllers
             return CreatedAtAction("GetTodo", new { id = todo.Id }, todo);
         }
 
-        // DELETE: api/Todo/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodo(int id)
         {

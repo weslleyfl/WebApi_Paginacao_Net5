@@ -26,8 +26,9 @@ namespace Paginacao
         }
 
         public IConfiguration Configuration { get; }
+        private readonly IWebHostEnvironment _env;
 
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
 
@@ -35,6 +36,14 @@ namespace Paginacao
             //  options.UseSqlServer(
             //      Configuration.GetConnectionString("DefaultConnection"),
             //      b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+
+            //services.AddDbContext<RegioesContext>(options =>
+            //{
+            //    options.UseSqlServer(
+            //        Configuration.GetConnectionString("DefaultConnection"));
+            //    if (_env.IsDevelopment())
+            //        options.EnableSensitiveDataLogging();
+            //});
 
 
             services.AddDbContext<AppDbContext>();

@@ -11,6 +11,7 @@ using Paginacao.Helpers;
 using Paginacao.Model;
 using Paginacao.Wrappers;
 using Paginacao.Services;
+using System.Net.Mime;
 
 namespace Paginacao.Controllers
 {
@@ -28,7 +29,9 @@ namespace Paginacao.Controllers
         }
 
 
-        [HttpGet("")]
+        [HttpGet()]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedResponse<>))]
         public async Task<IActionResult> GetAll([FromQuery] PaginationFilter filter)
         {
             var route = Request.Path.Value;
@@ -42,11 +45,11 @@ namespace Paginacao.Controllers
             var totalRecords = await _context.Customers.AsNoTracking().CountAsync();
             var pagedReponse = PaginationHelper.CreatePagedReponse<Customer>(
                 pagedData,
-                validFilter, 
-                totalRecords, 
-                _uriService, 
+                validFilter,
+                totalRecords,
+                _uriService,
                 route);
-            
+
             return Ok(pagedReponse);
         }
 
@@ -54,7 +57,7 @@ namespace Paginacao.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var customer = await _context.Customers
-                .AsNoTracking()               
+                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             return Ok(new Response<Customer>(customer));
